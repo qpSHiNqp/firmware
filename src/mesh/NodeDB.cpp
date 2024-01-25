@@ -173,6 +173,7 @@ void NodeDB::installDefaultConfig()
     config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_UNSET;
     config.lora.modem_preset = meshtastic_Config_LoRaConfig_ModemPreset_LONG_FAST;
     config.lora.hop_limit = HOP_RELIABLE;
+    config.lora.ignore_mqtt = false;
 #ifdef PIN_GPS_EN
     config.position.gps_en_gpio = PIN_GPS_EN;
 #endif
@@ -878,10 +879,11 @@ meshtastic_NodeInfoLite *NodeDB::getOrCreateMeshNode(NodeNum n)
         if ((*numMeshNodes >= MAX_NUM_NODES) || (memGet.getFreeHeap() < meshtastic_NodeInfoLite_size * 3)) {
             if (screen)
                 screen->print("warning: node_db_lite full! erasing oldest entry\n");
+            LOG_INFO("warning: node_db_lite full! erasing oldest entry\n");
             // look for oldest node and erase it
             uint32_t oldest = UINT32_MAX;
             int oldestIndex = -1;
-            for (int i = 0; i < *numMeshNodes; i++) {
+            for (int i = 1; i < *numMeshNodes; i++) {
                 if (meshNodes[i].last_heard < oldest) {
                     oldest = meshNodes[i].last_heard;
                     oldestIndex = i;
