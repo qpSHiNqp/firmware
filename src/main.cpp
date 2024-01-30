@@ -54,6 +54,7 @@ NRF52Bluetooth *nrf52Bluetooth;
 #endif
 #include "mqtt/MQTT.h"
 
+#include "UARTInterface.h"
 #include "LLCC68Interface.h"
 #include "RF95Interface.h"
 #include "SX1262Interface.h"
@@ -790,6 +791,19 @@ void setup()
             rIf = NULL;
         } else {
             LOG_INFO("Using SIMULATED radio!\n");
+        }
+    }
+#endif
+
+#if defined(USE_LORA_UART)
+    if (!rIf) {
+        rIf = new UARTInterface(RadioLibHAL, LORA_TX, LORA_RX, LORA_AUX, LORA_M0, LORA_M1);
+        if (!rIf->init()) {
+            LOG_WARN("Failed to find UART radio\n");
+            delete rIf;
+            rIf = NULL;
+        } else {
+            LOG_INFO("UART Radio init succeeded, using UART radio\n");
         }
     }
 #endif
